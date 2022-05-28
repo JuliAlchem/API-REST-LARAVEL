@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PlayerController;
 
@@ -17,11 +18,28 @@ use App\Models\User;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('/players', [PlayerController::class, 'index']);
-Route::post('/players', [PlayerController::class, 'store']); // dont work :.(
+
+// Public routes
+
+        Route::post('/register', [AuthController::class, 'register']);
+        Route::post('/login', [AuthController::class, 'login']);
+
+        Route::resource('/users', UserController::class);
+// Protected routes
+ 
+        Route::group(['middleware'=> ['auth:sanctum']], function () {
+        
+        Route::post('/logout', [AuthController::class, 'logout']);
+
+        Route::resource('/users', UserController::class);
+
+        Route::post('/players', [PlayerController::class, 'store']); // dont work :.(
+        Route::put('/players/{id}', [PlayerController::class, 'update']);
+        Route::get('/players', [PlayerController::class, 'index']);
+        
+    });
 
 
-Route::resource('/users', UserController::class);
 
 /*
 Route::get('/users', [UserController::class, 'index']);
@@ -31,8 +49,3 @@ Route::get('/users', [UserController::class, 'show']);
 
 
 
-/*
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-*/
